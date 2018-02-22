@@ -2,9 +2,11 @@ const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const path = require('path');
 
 const productRoutes = require('./api/routes/products');
 const orderRoutes = require('./api/routes/orders');
+const userRoutes = require('./api/routes/users');
 const app = express();
 
 mongoose.Promise = global.Promise;
@@ -19,6 +21,8 @@ app.use(morgan('dev'));
 // body-parser Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.use('/uploads', express.static(path.join(__dirname,'uploads')));
 
 // Handling CORS errors
 app.use((req,res,next) => {
@@ -37,6 +41,7 @@ app.use((req,res,next) => {
 // Routes
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
+app.use('/users', userRoutes);
 
 // Catch-All Routes & Error Handling
 app.use((req,res,next) => {

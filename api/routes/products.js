@@ -1,12 +1,36 @@
 const express = require('express');
-
+const multer = require('multer');
 const Product = require('../models/product');
 
 const router = express.Router();
+//Uploads images here
+const storage = multer.diskStorage({
+  destination: function(req,file,callback) {
+    callback(null,'./uploads/');
+  },
+  filename: function(req,file,callback) {
+    callback(null, Date.now() + file.originalname);
+  }
+});
+
+const fileFilter = (req,file,callback) => {
+  if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    // accept file
+    callback(null,true);
+  } else {
+    // reject a file
+    callback(null,false);
+  }
+};
+const upload = multer({
+   storage: storage,
+   limits: { fileSize: 1024*1024*5 },
+   fileFilter: fileFilter
+ });
 
 router.get('/', (req,res) => {
   Product.find({})
-    .select('_id name price')
+    .select('_id name price productImage')
     .then((docs) => {
       const response = {
         count: docs.length,
@@ -15,6 +39,7 @@ router.get('/', (req,res) => {
             _id: doc._id,
             name: doc.name,
             price: doc.price,
+            productImage: doc.productImage,
             request: {
               type: 'GET',
               url: `http://localhost:3000/products/${doc._id}`
@@ -29,10 +54,12 @@ router.get('/', (req,res) => {
     });
 });
 
-router.post('/', (req,res) => {
+router.post('/', upload.single('productImage'), (req,res) => {
+  console.log(req.file);
   const product = new Product({
     name: req.body.name,
-    price: req.body.price
+    price: req.body.price,
+    productImage: req.file.path.replace(/\\/,'/')
   });
 
   product.save()
@@ -43,6 +70,7 @@ router.post('/', (req,res) => {
           _id: result._id,
           name: result.name,
           price: result.price,
+          productImage: result.productImage,
           request: {
             type: 'GET',
             url: `http://localhost:3000/products/${result._id}`
@@ -60,7 +88,7 @@ router.post('/', (req,res) => {
 router.get('/:id', (req,res) => {
   const { id } = req.params;
   Product.findById(id)
-    .select('_id name price')
+    .select('_id name price productImage')
     .then((result) => {
       if(result) {
         res.status(200).json({
