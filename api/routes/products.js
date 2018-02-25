@@ -1,14 +1,17 @@
 const express = require('express');
+const multer = require('multer');
+const upload = multer();
 
 const checkAuth = require('../middlewares/check-auth');
 const uploadFile = require('../middlewares/upload-file');
+const uploadToAWS = require('../middlewares/upload-to-aws');
 const ProductController = require('../controllers/ProductController');
 
 const router = express.Router();
 
 router.get('/', ProductController.fetchAll);
 
-router.post('/',checkAuth, uploadFile.single('productImage'), ProductController.createProduct);
+router.post('/',checkAuth, upload.single('productImage'), uploadToAWS, ProductController.createProduct);
 
 router.get('/:id', ProductController.fetchOne);
 

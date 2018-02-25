@@ -15,6 +15,7 @@
   "author": "Nigel Fernandes",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.202.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",

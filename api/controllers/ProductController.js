@@ -30,7 +30,7 @@ exports.createProduct = (req,res) => {
   const product = new Product({
     name: req.body.name,
     price: req.body.price,
-    productImage: req.file.path.replace(/\\/,'/')
+    productImage: req.fileUrl
   });
 
   product.save()
